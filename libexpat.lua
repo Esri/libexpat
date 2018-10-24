@@ -53,7 +53,7 @@ project "expat"
   -- configurations
   -- -------------------------------------------------------------
 
-  if (os.is("windows") and not _TARGET_IS_WINRT) then
+  if (os.is("windows") and not _TARGET_IS_WINUWP) then
     -- -------------------------------------------------------------
     -- configuration { "windows" }
     -- -------------------------------------------------------------
