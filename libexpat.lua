@@ -459,6 +459,30 @@ project "expat"
     -- configuration { "winuwp_release", "ARM" }
 
     -- -------------------------------------------------------------
+    -- configuration { "winuwp_debug", "ARM64" }
+    -- -------------------------------------------------------------
+
+    -- common configuration settings
+
+    dofile (_BUILD_DIR .. "/static_winuwp_arm64_debug.lua")
+
+    -- project specific configuration settings
+
+    -- configuration { "winuwp_debug", "ARM64" }
+
+    -- -------------------------------------------------------------
+    -- configuration { "winuwp_release", "ARM64" }
+    -- -------------------------------------------------------------
+
+    -- common configuration settings
+
+    dofile (_BUILD_DIR .. "/static_winuwp_arm64_release.lua")
+
+    -- project specific configuration settings
+
+    -- configuration { "winuwp_release", "ARM64" }
+
+    -- -------------------------------------------------------------
   end
 
   if (_IS_QT) then
