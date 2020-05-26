@@ -2,16 +2,13 @@
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="expat">
-      <UniqueIdentifier>{FD36B138-9174-1942-AA2F-BC3497B3E349}</UniqueIdentifier>
+      <UniqueIdentifier>{3C7BED83-C66A-A645-8F94-171A0C53DA6E}</UniqueIdentifier>
     </Filter>
     <Filter Include="expat\lib">
-      <UniqueIdentifier>{7E8046C5-4AA5-DB44-98DB-02B3E1AABA4E}</UniqueIdentifier>
+      <UniqueIdentifier>{984E6B01-D718-B944-98D5-2B3E0678CD04}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="expat\lib\loadlibrary.c">
-      <Filter>expat\lib</Filter>
-    </ClCompile>
     <ClCompile Include="expat\lib\xmlparse.c">
       <Filter>expat\lib</Filter>
     </ClCompile>

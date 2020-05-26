@@ -214,8 +214,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="expat\lib\loadlibrary.c">
-    </ClCompile>
     <ClCompile Include="expat\lib\xmlparse.c">
     </ClCompile>
     <ClCompile Include="expat\lib\xmlrole.c">

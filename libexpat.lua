@@ -20,7 +20,6 @@ project "expat"
   }
 
   files {
-    "expat/lib/loadlibrary.c",
     "expat/lib/xmlparse.c",
     "expat/lib/xmlrole.c",
     "expat/lib/xmltok.c",
