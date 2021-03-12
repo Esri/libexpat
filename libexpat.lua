@@ -1,616 +1,75 @@
 project "expat"
 
-  local prj = project()
-  local prjDir = prj.basedir
+dofile(_BUILD_DIR .. "/static_library.lua")
 
-  -- -------------------------------------------------------------
-  -- project
-  -- -------------------------------------------------------------
+configuration { "*" }
 
-  -- common project settings
+uuid "3E35895F-37A0-46DB-88EA-A61EAFA7B2E0"
 
-  dofile (_BUILD_DIR .. "/3rdparty_static_project.lua")
+defines {
+  "XML_STATIC",
+}
 
-  -- project specific settings
+includedirs {
+  "expat/lib",
+}
 
-  uuid "3E35895F-37A0-46DB-88EA-A61EAFA7B2E0"
+files {
+  "expat/lib/xmlparse.c",
+  "expat/lib/xmlrole.c",
+  "expat/lib/xmltok.c",
+}
 
-  flags {
-    "NoPCH",
-  }
+local unix_defines = {
+  "BYTEORDER=1234",
+  "HAVE_MEMMOVE",
+  "XML_CONTEXT_BYTES=1024",
+  "XML_DEV_URANDOM",
+  "XML_DTD=1",
+  "XML_NS=1",
+  "XMLCALL=''", -- build without setting __attributes__ which defaults to hidden
+  "XMLIMPORT=''", -- build without setting __attributes__ which defaults to hidden
+}
 
-  files {
-    "expat/lib/xmlparse.c",
-    "expat/lib/xmlrole.c",
-    "expat/lib/xmltok.c",
-  }
 
-  includedirs {
-    "expat/lib",
-  }
-
+if (_PLATFORM_ANDROID) then
   defines {
-    "XML_STATIC",
+    unix_defines,
   }
+end
 
-  local unix_defines = {
-    "BYTEORDER=1234",
-    "HAVE_MEMMOVE",
-    "XML_CONTEXT_BYTES=1024",
-    "XML_DEV_URANDOM",
-    "XML_DTD=1",
-    "XML_NS=1",
-    "XMLCALL=''", -- build without setting __attributes__ which defaults to hidden
-    "XMLIMPORT=''", -- build without setting __attributes__ which defaults to hidden
+if (_PLATFORM_COCOA) then
+  defines {
+    unix_defines,
   }
+end
 
-  local windows_defines = {
+if (_PLATFORM_IOS) then
+  defines {
+    unix_defines,
+  }
+end
+
+if (_PLATFORM_LINUX) then
+  defines {
+    unix_defines,
+  }
+end
+
+if (_PLATFORM_MACOS) then
+  defines {
+    unix_defines,
+  }
+end
+
+if (_PLATFORM_WINDOWS) then
+  defines {
     "_CRT_SECURE_NO_WARNINGS",
   }
-
-  -- -------------------------------------------------------------
-  -- configurations
-  -- -------------------------------------------------------------
-
-  if (_PLATFORM_WINDOWS) then
-    -- -------------------------------------------------------------
-    -- configuration { "windows" }
-    -- -------------------------------------------------------------
-
-    -- common configuration settings
-
-    dofile (_BUILD_DIR .. "/3rdparty_static_win.lua")
-
-    -- project specific configuration settings
-
-    configuration { "windows" }
-
-      defines {
-        windows_defines,
-      }
-
-    -- -------------------------------------------------------------
-    -- configuration { "windows", "Debug", "x32" }
-    -- -------------------------------------------------------------
-
-    -- common configuration settings
-
-    dofile (_BUILD_DIR .. "/static_win_x86_debug.lua")
-
-    -- project specific configuration settings
-
-    -- configuration { "windows", "Debug", "x32" }
-
-    -- -------------------------------------------------------------
-    -- configuration { "windows", "Debug", "x64" }
-    -- -------------------------------------------------------------
-
-    -- common configuration settings
-
-    dofile (_BUILD_DIR .. "/static_win_x64_debug.lua")
-
-    -- project specific configuration settings
-
-    -- configuration { "windows", "Debug", "x64" }
-
-    -- -------------------------------------------------------------
-    -- configuration { "windows", "Release", "x32" }
-    -- -------------------------------------------------------------
-
-    -- common configuration settings
-
-    dofile (_BUILD_DIR .. "/static_win_x86_release.lua")
-
-    -- project specific configuration settings
-
-    -- configuration { "windows", "Release", "x32" }
-
-    -- -------------------------------------------------------------
-    -- configuration { "windows", "Release", "x64" }
-    -- -------------------------------------------------------------
-
-    -- common configuration settings
-
-    dofile (_BUILD_DIR .. "/static_win_x64_release.lua")
-
-    -- project specific configuration settings
-
-    -- configuration { "windows", "Release", "x64" }
-
-    -- -------------------------------------------------------------
-  end
-
-  if (_PLATFORM_LINUX) then
-    -- -------------------------------------------------------------
-    -- configuration { "linux" }
-    -- -------------------------------------------------------------
-
-    -- common configuration settings
-
-    dofile (_BUILD_DIR .. "/static_linux.lua")
-
-    -- project specific configuration settings
-
-    configuration { "linux" }
-
-      defines {
-        unix_defines,
-      }
-
-    -- -------------------------------------------------------------
-    -- configuration { "linux", "Debug", "x64" }
-    -- -------------------------------------------------------------
-
-    -- common configuration settings
-
-    dofile (_BUILD_DIR .. "/static_linux_x64_debug.lua")
-
-    -- project specific configuration settings
-
-    -- configuration { "linux", "Debug", "x64" }
-
-    -- -------------------------------------------------------------
-    -- configuration { "linux", "Release", "x64" }
-    -- -------------------------------------------------------------
-
-    -- common configuration settings
-
-    dofile (_BUILD_DIR .. "/static_linux_x64_release.lua")
-
-    -- project specific configuration settings
-
-    -- configuration { "linux", "Release", "x64" }
-
-    -- -------------------------------------------------------------
-    -- configuration { "linux", "Debug", "ARM64" }
-    -- -------------------------------------------------------------
-
-    -- common configuration settings
-
-    dofile (_BUILD_DIR .. "/static_linux_arm64_debug.lua")
-
-    -- project specific configuration settings
-
-    -- configuration { "linux", "Debug", "ARM64" }
-
-    -- -------------------------------------------------------------
-    -- configuration { "linux", "Release", "ARM64" }
-    -- -------------------------------------------------------------
-
-    -- common configuration settings
-
-    dofile (_BUILD_DIR .. "/static_linux_arm64_release.lua")
-
-    -- project specific configuration settings
-
-    -- configuration { "linux", "Release", "ARM64" }
-
-    -- -------------------------------------------------------------
-  end
-
-  if (_PLATFORM_MACOS) then
-    -- -------------------------------------------------------------
-    -- configuration { "macosx" }
-    -- -------------------------------------------------------------
-
-    -- common configuration settings
-
-    dofile (_BUILD_DIR .. "/static_mac.lua")
-
-    -- project specific configuration settings
-
-    configuration { "macosx" }
-
-      defines {
-        unix_defines,
-      }
-
-    -- -------------------------------------------------------------
-    -- configuration { "macosx", "Debug", "x64" }
-    -- -------------------------------------------------------------
-
-    -- common configuration settings
-
-    dofile (_BUILD_DIR .. "/static_mac_x64_debug.lua")
-
-    -- project specific configuration settings
-
-    -- configuration { "macosx", "Debug", "x64" }
-
-    -- -------------------------------------------------------------
-    -- configuration { "macosx", "Release", "x64" }
-    -- -------------------------------------------------------------
-
-    -- common configuration settings
-
-    dofile (_BUILD_DIR .. "/static_mac_x64_release.lua")
-
-    -- project specific configuration settings
-
-    -- configuration { "macosx", "Release", "x64" }
-
-    -- -------------------------------------------------------------
-  end
-
-  if (_PLATFORM_COCOA) then
-    -- -------------------------------------------------------------
-    -- configuration { "cocoa*" }
-    -- -------------------------------------------------------------
-
-    -- common configuration settings
-
-    dofile (_BUILD_DIR .. "/static_cocoa.lua")
-
-    -- project specific configuration settings
-
-    configuration { "cocoa*" }
-
-      defines {
-        unix_defines,
-      }
-
-    -- -------------------------------------------------------------
-    -- configuration { "cocoa_arm64_debug" }
-    -- -------------------------------------------------------------
-
-    -- common configuration settings
-
-    dofile (_BUILD_DIR .. "/static_cocoa_arm64_debug.lua")
-
-    -- project specific configuration settings
-
-    -- configuration { "cocoa_arm64_debug" }
-
-    -- -------------------------------------------------------------
-    -- configuration { "cocoa_arm64_release" }
-    -- -------------------------------------------------------------
-
-    -- common configuration settings
-
-    dofile (_BUILD_DIR .. "/static_cocoa_arm64_release.lua")
-
-    -- project specific configuration settings
-
-    -- configuration { "cocoa_arm64_release" }
-
-    -- -------------------------------------------------------------
-    -- configuration { "cocoa_sim64_debug" }
-    -- -------------------------------------------------------------
-
-    -- common configuration settings
-
-    dofile (_BUILD_DIR .. "/static_cocoa_sim64_debug.lua")
-
-    -- project specific configuration settings
-
-    -- configuration { "cocoa_sim64_debug" }
-
-    -- -------------------------------------------------------------
-    -- configuration { "cocoa_sim64_release" }
-    -- -------------------------------------------------------------
-
-    -- common configuration settings
-
-    dofile (_BUILD_DIR .. "/static_cocoa_sim64_release.lua")
-
-    -- project specific configuration settings
-
-    -- configuration { "cocoa_sim64_release" }
-
-    -- -------------------------------------------------------------
-    -- configuration { "cocoa_x64_debug" }
-    -- -------------------------------------------------------------
-
-    -- common configuration settings
-
-    dofile (_BUILD_DIR .. "/static_cocoa_x64_debug.lua")
-
-    -- project specific configuration settings
-
-    -- configuration { "cocoa_x64_debug" }
-
-    -- -------------------------------------------------------------
-    -- configuration { "cocoa_x64_release" }
-    -- -------------------------------------------------------------
-
-    -- common configuration settings
-
-    dofile (_BUILD_DIR .. "/static_cocoa_x64_release.lua")
-
-    -- project specific configuration settings
-
-    -- configuration { "cocoa_x64_release" }
-
-    -- -------------------------------------------------------------
-  end
-
-  if (_PLATFORM_IOS) then
-    -- -------------------------------------------------------------
-    -- configuration { "ios*" }
-    -- -------------------------------------------------------------
-
-    -- common configuration settings
-
-    dofile (_BUILD_DIR .. "/static_ios.lua")
-
-    -- project specific configuration settings
-
-    configuration { "ios*" }
-
-      defines {
-        unix_defines,
-      }
-
-    -- -------------------------------------------------------------
-    -- configuration { "ios_arm64_debug" }
-    -- -------------------------------------------------------------
-
-    -- common configuration settings
-
-    dofile (_BUILD_DIR .. "/static_ios_arm64_debug.lua")
-
-    -- project specific configuration settings
-
-    -- configuration { "ios_arm64_debug" }
-
-    -- -------------------------------------------------------------
-    -- configuration { "ios_arm64_release" }
-    -- -------------------------------------------------------------
-
-    -- common configuration settings
-
-    dofile (_BUILD_DIR .. "/static_ios_arm64_release.lua")
-
-    -- project specific configuration settings
-
-    -- configuration { "ios_arm64_release" }
-
-    -- -------------------------------------------------------------
-    -- configuration { "ios_sim64_debug" }
-    -- -------------------------------------------------------------
-
-    -- common configuration settings
-
-    dofile (_BUILD_DIR .. "/static_ios_sim64_debug.lua")
-
-    -- project specific configuration settings
-
-    -- configuration { "ios_sim64_debug" }
-
-    -- -------------------------------------------------------------
-    -- configuration { "ios_sim64_release" }
-    -- -------------------------------------------------------------
-
-    -- common configuration settings
-
-    dofile (_BUILD_DIR .. "/static_ios_sim64_release.lua")
-
-    -- project specific configuration settings
-
-    -- configuration { "ios_sim64_release" }
-
-    -- -------------------------------------------------------------
-  end
-
-  if (_PLATFORM_ANDROID) then
-    -- -------------------------------------------------------------
-    -- configuration { "android*" }
-    -- -------------------------------------------------------------
-
-    -- common configuration settings
-
-    dofile (_BUILD_DIR .. "/static_android.lua")
-
-    -- project specific configuration settings
-
-    configuration { "android*" }
-
-      defines {
-        unix_defines,
-      }
-
-    -- -------------------------------------------------------------
-    -- configuration { "android_armv7_debug" }
-    -- -------------------------------------------------------------
-
-    -- common configuration settings
-
-    dofile (_BUILD_DIR .. "/static_android_armv7_debug.lua")
-
-    -- project specific configuration settings
-
-    -- configuration { "android_armv7_debug" }
-
-    -- -------------------------------------------------------------
-    -- configuration { "android_armv7_release" }
-    -- -------------------------------------------------------------
-
-    -- common configuration settings
-
-    dofile (_BUILD_DIR .. "/static_android_armv7_release.lua")
-
-    -- project specific configuration settings
-
-    -- configuration { "android_armv7_release" }
-
-    -- -------------------------------------------------------------
-    -- configuration { "android_x86_debug" }
-    -- -------------------------------------------------------------
-
-    -- common configuration settings
-
-    dofile (_BUILD_DIR .. "/static_android_x86_debug.lua")
-
-    -- project specific configuration settings
-
-    -- configuration { "android_x86_debug" }
-
-    -- -------------------------------------------------------------
-    -- configuration { "android_x86_release" }
-    -- -------------------------------------------------------------
-
-    -- common configuration settings
-
-    dofile (_BUILD_DIR .. "/static_android_x86_release.lua")
-
-    -- project specific configuration settings
-
-    -- configuration { "android_x86_release" }
-
-    -- -------------------------------------------------------------
-    -- configuration { "android_arm64_debug" }
-    -- -------------------------------------------------------------
-
-    -- common configuration settings
-
-    dofile (_BUILD_DIR .. "/static_android_arm64_debug.lua")
-
-    -- project specific configuration settings
-
-    -- configuration { "android_arm64_debug" }
-
-    -- -------------------------------------------------------------
-    -- configuration { "android_arm64_release" }
-    -- -------------------------------------------------------------
-
-    -- common configuration settings
-
-    dofile (_BUILD_DIR .. "/static_android_arm64_release.lua")
-
-    -- project specific configuration settings
-
-    -- configuration { "android_arm64_release" }
-
-    -- -------------------------------------------------------------
-    -- configuration { "android_x64_debug" }
-    -- -------------------------------------------------------------
-
-    -- common configuration settings
-
-    dofile (_BUILD_DIR .. "/static_android_x64_debug.lua")
-
-    -- project specific configuration settings
-
-    -- configuration { "android_x64_debug" }
-
-    -- -------------------------------------------------------------
-    -- configuration { "android_x64_release" }
-    -- -------------------------------------------------------------
-
-    -- common configuration settings
-
-    dofile (_BUILD_DIR .. "/static_android_x64_release.lua")
-
-    -- project specific configuration settings
-
-    -- configuration { "android_x64_release" }
-
-    -- -------------------------------------------------------------
-  end
-
-  if (_PLATFORM_WINUWP) then
-    -- -------------------------------------------------------------
-    -- configuration { "windows" }
-    -- -------------------------------------------------------------
-
-    -- common configuration settings
-
-    dofile (_BUILD_DIR .. "/static_winuwp.lua")
-
-    -- project specific configuration settings
-
-    configuration { "windows" }
-
-      defines {
-        windows_defines,
-      }
-
-    -- -------------------------------------------------------------
-    -- configuration { "winuwp_debug", "x32" }
-    -- -------------------------------------------------------------
-
-    -- common configuration settings
-
-    dofile (_BUILD_DIR .. "/static_winuwp_x86_debug.lua")
-
-    -- project specific configuration settings
-
-    -- configuration { "winuwp_debug", "x32" }
-
-    -- -------------------------------------------------------------
-    -- configuration { "winuwp_release", "x32" }
-    -- -------------------------------------------------------------
-
-    -- common configuration settings
-
-    dofile (_BUILD_DIR .. "/static_winuwp_x86_release.lua")
-
-    -- project specific configuration settings
-
-    -- configuration { "winuwp_release", "x32" }
-
-    -- -------------------------------------------------------------
-    -- configuration { "winuwp_debug", "x64" }
-    -- -------------------------------------------------------------
-
-    -- common configuration settings
-
-    dofile (_BUILD_DIR .. "/static_winuwp_x64_debug.lua")
-
-    -- project specific configuration settings
-
-    -- configuration { "winuwp_debug", "x64" }
-
-    -- -------------------------------------------------------------
-    -- configuration { "winuwp_release", "x64" }
-    -- -------------------------------------------------------------
-
-    -- common configuration settings
-
-    dofile (_BUILD_DIR .. "/static_winuwp_x64_release.lua")
-
-    -- project specific configuration settings
-
-    -- configuration { "winuwp_release", "x64" }
-
-    -- -------------------------------------------------------------
-    -- configuration { "winuwp_debug", "ARM64" }
-    -- -------------------------------------------------------------
-
-    -- common configuration settings
-
-    dofile (_BUILD_DIR .. "/static_winuwp_arm64_debug.lua")
-
-    -- project specific configuration settings
-
-    -- configuration { "winuwp_debug", "ARM64" }
-
-    -- -------------------------------------------------------------
-    -- configuration { "winuwp_release", "ARM64" }
-    -- -------------------------------------------------------------
-
-    -- common configuration settings
-
-    dofile (_BUILD_DIR .. "/static_winuwp_arm64_release.lua")
-
-    -- project specific configuration settings
-
-    -- configuration { "winuwp_release", "ARM64" }
-
-    -- -------------------------------------------------------------
-  end
-
-  if (_IS_QT) then
-    -- -------------------------------------------------------------
-    -- configuration { "qt" }
-    -- -------------------------------------------------------------
-
-    local qt_include_dirs = PROJECT_INCLUDE_DIRS
-
-    -- Add additional QT include dirs
-    -- table.insert(qt_include_dirs, <INCLUDE_PATH>)
-
-    createqtfiles(project(), qt_include_dirs)
-
-    -- -------------------------------------------------------------
-  end
+end
+
+if (_PLATFORM_WINUWP) then
+  defines {
+    "_CRT_SECURE_NO_WARNINGS",
+  }
+end
