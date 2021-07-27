@@ -50,8 +50,6 @@
 #  include "winconfig.h"
 #endif
 
-#include <expat_config.h>
-
 #include "expat_external.h"
 #include "internal.h"
 #include "xmltok.h"

@@ -90,8 +90,6 @@
 #  include "winconfig.h"
 #endif
 
-#include <expat_config.h>
-
 #include "ascii.h"
 #include "expat.h"
 #include "siphash.h"
