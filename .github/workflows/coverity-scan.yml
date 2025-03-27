@@ -27,11 +27,12 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 # USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-name: Run fuzzing regression tests
+name: Upload build to Coverity Scan
 
 on:
-  pull_request:
   push:
+    branches:
+      - master
   schedule:
     - cron: '0 2 * * 5'  # Every Friday at 2am
   workflow_dispatch:
@@ -40,19 +41,27 @@ permissions:
   contents: read
 
 jobs:
-  run_fuzzers:
-    name: Run fuzzing regression tests
-    strategy:
-      fail-fast: false
-      matrix:
-        fuzzer:
-          - xml_parse_fuzzer_UTF-8
-          - xml_parsebuffer_fuzzer_UTF-16LE
+  coverity_scan_upload:
+    name: Upload build to Coverity Scan
+    # NOTE: The idea is not to bother fork repositories with a job
+    #       that is doomed to fail
+    if: ${{ github.repository == 'libexpat/libexpat' }}
     runs-on: ubuntu-24.04
-    env:
-      fuzzer: ${{ matrix.fuzzer }}
     steps:
     - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+      with:
+        # The next two lines ensure clean and public-only submissions
+        repository: libexpat/libexpat
+        ref: master
+        # This will allow to do "git describe --tags" further done
+        fetch-depth: 0
+
+    - name: Determine version string
+      id: determine_version
+      run: |-
+        set -x
+        tee    "${GITHUB_OUTPUT}" <<< "version=$(git describe --tags | sed -e 's,^R_,,' -e 's,_,.,g')"
+        tee -a "${GITHUB_OUTPUT}" <<< "git_commit=$(git rev-parse HEAD)"
 
     - name: Install Clang 19
       run: |-
@@ -74,7 +83,7 @@ jobs:
             libprotobuf-dev \
             protobuf-compiler
 
-    - name: Build Expat fuzzers
+    - name: Configure using CMake
       run: |
         set -x -o pipefail
 
@@ -84,73 +93,33 @@ jobs:
 
         cd expat/
         args=(
-            # Build nothing but fuzzers
             -DEXPAT_BUILD_DOCS=OFF
-            -DEXPAT_BUILD_EXAMPLES=OFF
             -DEXPAT_BUILD_FUZZERS=ON
-            -DEXPAT_BUILD_PKGCONFIG=OFF
-            -DEXPAT_BUILD_TESTS=OFF
-            -DEXPAT_BUILD_TOOLS=OFF
 
-            # Tune compilation of fuzzers to use Clang with ASan and UBSan
+            # Tune compilation of fuzzers to (1) pass all sanity checks from
+            # CMakeLists.txt (that e.g. require use of fuzzers with sanitizers)
+            # and (2) ideally speed up compilation since no machine or human
+            # will be running the binaries we build for nothing but Coverity:
             -DCMAKE_C_COMPILER=clang
             -DCMAKE_CXX_COMPILER=clang++
-            -DCMAKE_{C,CXX}_FLAGS='-Wall -Wextra -pedantic -O1 -g -fsanitize=address,undefined -fno-sanitize-recover=all -fno-omit-frame-pointer -fno-common -fprofile-instr-generate -fcoverage-mapping'
-            -DCMAKE_{EXE,MODULE,SHARED}_LINKER_FLAGS='-g -fsanitize=address,undefined'
-            -DEXPAT_WARNINGS_AS_ERRORS=ON
+            -DCMAKE_{C,CXX}_FLAGS='-O1 -g -fsanitize=address'
+            -DCMAKE_{EXE,MODULE,SHARED}_LINKER_FLAGS='-g -fsanitize=address'
         )
-        cmake "${args[@]}" -S . -B build
-        make -C build VERBOSE=1 -j$(nproc)
+        cmake "${args[@]}" -S . -B .
 
-        ./build/fuzz/xml_lpm_fuzzer -help=1
+    - uses: vapier/coverity-scan-action@2068473c7bdf8c2fb984a6a40ae76ee7facd7a85  # v1.8.0
+      with:
+        email: ${{ secrets.COVERITY_SCAN_EMAIL }}
+        token: ${{ secrets.COVERITY_SCAN_TOKEN }}
+        command: make VERBOSE=1
+        working-directory: "${{ github.workspace }}/expat"
+        version: "${{ steps.determine_version.outputs.version }}"
+        # NOTE: The commit here is not necessarily the same as ${{ github.sha }} that triggered the action.
+        description: "coverity-scan-action libexpat/libexpat / ${{ steps.determine_version.outputs.git_commit }}"
 
-    - name: Download and extract Expat fuzzing corpora
-      run: |-
-        set -x
-        cd expat/build/
-        wget -q -O corpus.zip "https://storage.googleapis.com/expat-backup.clusterfuzz-external.appspot.com/corpus/libFuzzer/expat_${fuzzer}/public.zip"
-        unzip -q -d corpus/ corpus.zip
-
-    - name: Run fuzzing regression tests (1 to 5 minutes)
-      run: |
-        fuzz_args=(
-            -jobs=$(nproc)
-            -print_final_stats=1
-            -rss_limit_mb=2560  # from OSS-Fuzz
-            -timeout=25         # from OSS-Fuzz
-        )
-
-        set -x -o pipefail
-        cd expat/build/
-
-        mkdir coverage/
-        export LLVM_PROFILE_FILE=coverage/expat-%p.profraw
-
-        find corpus/ -type f | sort | xargs "fuzz/${fuzzer}" "${fuzz_args[@]}"
-
-    - name: Store fuzzing logs of last batch
+    - name: Offer analysis tarball for inspection
       uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1  # v4.6.1
       with:
-        name: expat_fuzzing_logs_last_${{ matrix.fuzzer }}_${{ github.sha }}
-        path: expat/build/fuzz-*.log
-        if-no-files-found: error
-
-    - name: Render coverage report
-      run: |
-        set -x -o pipefail
-        cd expat/build/
-
-        # Merged and convert to a single indexed profile data file
-        llvm-profdata merge -sparse -o coverage/expat.profdata coverage/expat-*.profraw
-
-        # Render report
-        llvm-cov show fuzz/${fuzzer} -instr-profile=coverage/expat.profdata -show-branches=count -format=html -output-dir=coverage/html/
-        llvm-cov report fuzz/${fuzzer} -instr-profile=coverage/expat.profdata -show-functions -sources ../lib/ | tee coverage/report_functions.txt
-        llvm-cov report fuzz/${fuzzer} -instr-profile=coverage/expat.profdata                 -sources ../lib/ | tee coverage/report_files.txt
-
-    - name: Store coverage report
-      uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1  # v4.6.1
-      with:
-        name: expat_fuzzing_coverage_${{ matrix.fuzzer }}_${{ github.sha }}
-        path: expat/build/coverage/
+        name: expat_coverity_scan_upload_${{ github.sha }}
+        path: expat/cov-int.tgz
         if-no-files-found: error
