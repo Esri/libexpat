@@ -3,7 +3,7 @@ from conans import ConanFile
 
 class ExpatConan(ConanFile):
     name = "expat"
-    version = "2.7.1"
+    version = "2.7.3"
     url = "https://github.com/Esri/libexpat"
     license = "https://github.com/Esri/libexpat/blob/master/expat/COPYING"
     description = "Expat is a stream-oriented XML parser."
