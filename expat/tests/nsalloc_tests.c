@@ -10,7 +10,7 @@
    Copyright (c) 2003      Greg Stein <gstein@users.sourceforge.net>
    Copyright (c) 2005-2007 Steven Solie <steven@solie.ca>
    Copyright (c) 2005-2012 Karl Waclawek <karl@waclawek.net>
-   Copyright (c) 2016-2023 Sebastian Pipping <sebastian@pipping.org>
+   Copyright (c) 2016-2025 Sebastian Pipping <sebastian@pipping.org>
    Copyright (c) 2017-2022 Rhodri James <rhodri@wildebeest.org.uk>
    Copyright (c) 2017      Joe Orton <jorton@redhat.com>
    Copyright (c) 2017      José Gutiérrez de la Concha <jose@zeroc.com>
@@ -454,10 +454,15 @@ START_TEST(test_nsalloc_realloc_attributes) {
     nsalloc_teardown();
     nsalloc_setup();
   }
+#if XML_GE == 1
+  assert_true(
+      i == 0); // because expat_realloc relies on expat_malloc to some extent
+#else
   if (i == 0)
     fail("Parsing worked despite failing reallocations");
   else if (i == max_realloc_count)
     fail("Parsing failed at max reallocation count");
+#endif
 }
 END_TEST
 
