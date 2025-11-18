@@ -11,7 +11,7 @@
 > at the top of the `Changes` file.
 
 
-# Expat, Release 2.7.1
+# Expat, Release 2.7.3
 
 This is Expat, a C99 library for parsing
 [XML 1.0 Fourth Edition](https://www.w3.org/TR/2006/REC-xml-20060816/), started by
@@ -26,7 +26,8 @@ Expat supports the following C99 compilers:
 
 - GNU GCC >=4.5 (for use from C) or GNU GCC >=4.8.1 (for use from C++)
 - LLVM Clang >=3.5
-- Microsoft Visual Studio >=16.0/2019 (rolling `${today} minus 5 years`)
+- Microsoft Visual Studio >=17.0/2022
+  (the oldest version supported by the [official GitHub Actions Windows images](https://github.com/actions/runner-images))
 
 Windows users can use the
 [`expat-win32bin-*.*.*.{exe,zip}` download](https://github.com/libexpat/libexpat/releases),
@@ -119,7 +120,7 @@ project(hello VERSION 1.0.0)
 FetchContent_Declare(
     expat
     GIT_REPOSITORY https://github.com/libexpat/libexpat/
-    GIT_TAG        000000000_GIT_COMMIT_SHA1_HERE_000000000  # i.e. Git tag R_0_Y_Z
+    GIT_TAG        000000000_GIT_COMMIT_SHA1_HERE_000000000  # i.e. Git tag R_X_Y_Z
     SOURCE_SUBDIR  expat/
 )
 
