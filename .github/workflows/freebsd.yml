@@ -5,9 +5,8 @@
 #                      \___/_/\_\ .__/ \__,_|\__|
 #                               |_| XML parser
 #
-# Copyright (c) 2021-2025 Sebastian Pipping <sebastian@pipping.org>
-# Copyright (c) 2023      Joyce Brum <joycebrum@google.com>
-# Copyright (c) 2024      Dag-Erling Smørgrav <des@des.dev>
+# Copyright (c) 2025 Sebastian Pipping <sebastian@pipping.org>
+# Copyright (c) 2025 Daniel Engberg <daniel.engberg.lists@pyret.net>
 # Licensed under the MIT license:
 #
 # Permission is  hereby granted,  free of charge,  to any  person obtaining
@@ -29,7 +28,7 @@
 # OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
 # USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-name: Run Cppcheck (from macOS Homebrew)
+name: Build in a FreeBSD VM
 
 on:
   pull_request:
@@ -42,16 +41,55 @@ permissions:
   contents: read
 
 jobs:
-  checks:
-    name: Run Cppcheck
-    runs-on: macos-14
+  freebsd:
+    name: Build in a FreeBSD VM
+    runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
-    - name: Install runtime dependencies
-      run: |
-        set -x
-        brew update
-        exec brew install cppcheck
-    - name: Run Cppcheck
-      run: |
-        exec .github/workflows/scripts/mass-cppcheck.sh
+
+    - uses: vmactions/freebsd-vm@487ce35b96fae3e60d45b521735f5aa436ecfade  # v1.2.4
+      with:
+        release: "15.0"
+        usesh: true
+
+        prepare: |
+          set -e -x
+          pkg install -y \
+              autoconf \
+              automake \
+              bash \
+              cmake-core \
+              libtool
+
+        run: |
+          set -e -x
+
+          compile_flags='-Wall -Wextra -pedantic -O1 -pipe'
+          export CFLAGS="-std=c99 ${compile_flags}"
+          export CXXFLAGS="-std=c++11 ${compile_flags}"
+
+          cc -v
+          c++ -v
+
+          cd expat
+          ./buildconf.sh
+
+          # 1 of 2: GNU Autotools build system
+          mkdir build_autotools
+          cd build_autotools
+            ../configure
+            make -j2 CFLAGS="${CFLAGS} -Werror"
+            make check CFLAGS="${CFLAGS} -Werror" CXXFLAGS="${CXXLAGS} -Werror"
+            make install DESTDIR="${PWD}/ROOT/"
+            find ROOT/
+          cd ..
+
+          # 2 of 2: CMake build system
+          mkdir build_cmake
+          cd build_cmake
+            cmake -S .. -B . -DEXPAT_WARNINGS_AS_ERRORS:BOOL=ON
+            make -j2 VERBOSE=1
+            make test VERBOSE=1
+            make install DESTDIR="${PWD}/ROOT/"
+            find ROOT/
+          cd ..
