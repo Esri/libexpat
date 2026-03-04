@@ -48,7 +48,7 @@ jobs:
     if: ${{ github.repository == 'libexpat/libexpat' }}
     runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       with:
         # The next two lines ensure clean and public-only submissions
         repository: libexpat/libexpat
@@ -118,7 +118,7 @@ jobs:
         description: "coverity-scan-action libexpat/libexpat / ${{ steps.determine_version.outputs.git_commit }}"
 
     - name: Offer analysis tarball for inspection
-      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+      uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f  # v6.0.0
       with:
         name: expat_coverity_scan_upload_${{ github.sha }}
         path: expat/cov-int.tgz
