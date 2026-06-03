@@ -19,22 +19,42 @@ files {
 }
 
 if (_PLATFORM_ANDROID) then
+  files {
+    "expat/lib/random_getrandom.c",
+    "expat/lib/random_dev_urandom.c",
+  }
 end
 
 if (_PLATFORM_COCOA) then
 end
 
 if (_PLATFORM_IOS) then
+  files {
+    "expat/lib/random_arc4random_buf.c",    
+  }
 end
 
 if (_PLATFORM_LINUX) then
+  files {
+    "expat/lib/random_getrandom.c",
+    "expat/lib/random_dev_urandom.c",
+  }
 end
 
 if (_PLATFORM_MACOS) then
+  files {
+    "expat/lib/random_arc4random_buf.c",    
+  }
 end
 
 if (_PLATFORM_WINDOWS) then
+  files {
+    "expat/lib/random_rand_s.c",
+  }
 end
 
 if (_PLATFORM_WINUWP) then
+  files {
+    "expat/lib/random_rand_s.c",
+  }
 end
