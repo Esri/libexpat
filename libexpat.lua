@@ -16,6 +16,7 @@ files {
   "expat/lib/xmlparse.c",
   "expat/lib/xmlrole.c",
   "expat/lib/xmltok.c",
+  "expat/lib/xcs.c",
 }
 
 if (_PLATFORM_ANDROID) then
